@@ -31,9 +31,13 @@
 
 #include <Arduino.h>
 #include <ArduinoJson.h>
+
 //BOUTON START
 int BoutonStart; //évènement bouton
 int EtatSysteme = 0; //0 = arrêt, 1 = démarrage, 2 = pause ...
+
+//COMPTE A REBOURS
+int counter = 0;
 
 // TEMPÉRATURE
 #include "MyTemp.h"
@@ -103,7 +107,9 @@ void readStoneData() {
           std::cout << "Bouton : " <<  stoneName.c_str() << "\n";
 
           //std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
+          if(strcmp(stoneName.c_str(), "button") == 0){
+            BoutonStart = 1;
+          }
           break;
           }
       }
@@ -133,6 +139,7 @@ void setup() {
     myTemp->init(DHTPIN, DHTTYPE);
     Serial.println("ça marche !");
 
+     //Affichage des données
      //Partie des caractéristiques
           myStone->setLabel("bois", "Érable");
 delay(100);
@@ -158,6 +165,27 @@ void loop() {
   char buffer[10];
   readStoneData();
 
+  //Boucle pour le compte à rebours
+  if(BoutonStart == 1){
+    Serial.print("fonctionnement");
+    if(temperature >= 25*0.90 && temperature <= 25*1.19){
+      while (counter < 20 && (temperature >= 25*0.90 && temperature <= 25*1.19)){
+        delay(500);
+
+        Serial.print(20);
+        counter++;
+        Serial.print(counter);
+        char tempsSecondes[20];
+        sprintf(tempsSecondes, "%.0f s / %.1f s", counter, 20);
+        myStone->setLabel("temps", tempsSecondes);
+
+        sprintf(buffer, "%.1f °C", temperature);
+          myStone->setLabel("temperature", buffer);
+      }
+    }
+    BoutonStart = 0;
+  }
+
   int buttonActionT4 = myButtonT4->checkMyButton();
       if(buttonActionT4 > 2)  {  //Si appuyé plus de 0.2 secondes
           Serial.println("Button T4 pressed");
@@ -182,7 +210,16 @@ void loop() {
   sprintf(buffer, "%.1f °C", temperature);
           myStone->setLabel("temperature", buffer);
 
-  temperature = myTemp->getTemperature();
+  temperature = myTemp->getTemperature(); //récupération de la température
+
+  if(BoutonStart == 3){
+    BoutonStart = 0;
+    EtatSysteme = 1;
+  }
+
+  if(EtatSysteme == 1){ //si démarrage -> Compte à rebours commence
+      counter ++;
+  }
 
   delay(100);
   }
