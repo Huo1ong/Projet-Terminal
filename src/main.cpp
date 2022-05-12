@@ -26,7 +26,18 @@
           Optenir la version du Firmware de l'écran
  * */
 
+#include <iostream>
+#include <string>
+
 #include <Arduino.h>
+#include <ArduinoJson.h>
+
+// TEMPÉRATURE
+#include "MyTemp.h"
+#define DHTPIN 21
+#define DHTTYPE DHT22
+float temperature =0;
+MyTemp *myTemp = NULL;
 
 #define RXD2 18//16
 #define TXD2 19//17
@@ -99,6 +110,10 @@ void setup() {
   myButtonT5->autoSensibilisation(); //Trouve la sensibilité automatiquement
 
   cout << std::string("Début de l'exemple Stone de base pour le ESP32")  << "\n";
+
+  myTemp=new MyTemp();
+    myTemp->init(DHTPIN, DHTTYPE);
+    Serial.println("ça marche !");
 }
 
 void loop() { 
@@ -108,6 +123,10 @@ void loop() {
   int buttonActionT4 = myButtonT4->checkMyButton();
       if(buttonActionT4 > 2)  {  //Si appuyé plus de 0.2 secondes
           Serial.println("Button T4 pressed");
+
+         // temperature = myTemp->getTemperature();
+          Serial.print("Temperature : ");
+          Serial.println(temperature);
           }
 
   int buttonActionT5 = myButtonT5->checkMyButton();
@@ -118,6 +137,9 @@ void loop() {
           strcpy(cmdFormat2, "ST<{\"cmd_code\":\"sys_version\",\"type\":\"system\"}>ET");
           std::cout << cmdFormat2 << "\n";
           myStone->writeIt((char*)cmdFormat2);
-
           }
+  
+  temperature = myTemp->getTemperature();
+
+  delay(100);
   }
