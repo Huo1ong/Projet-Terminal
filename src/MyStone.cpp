@@ -117,6 +117,29 @@ datasRead  MyStone::getValidsDatasIfExists() {
             break;
             };
 
+            case 0x1001: { //Bouton
+            int keyValue = (int) data[longeur-1];
+            data[longeur-1] = 0x00;
+
+            //Lire les données suivantes : TAIL (3 char ">ET") et CRC (Hexa16)
+            char TailDatas[5];
+             n = mySerial->readIt( TailDatas, 5);
+            //Check if TAIL (>ET) is OK
+            if ((n!=5) || (TailDatas[0]!='>') || (TailDatas[1]!='E') || (TailDatas[2]!='T')) return (rd);
+            //Nous ne vérifions pas le CRC pour plus de rapidité mais ce serait mieux...
+              //Traitement du CRC
+              //int crc = TailDatas[4]; crc <<= 8; crc |= TailDatas[3];
+              //std::cout << "Crc: " << intToString(crc, "%4X") << "\n";
+
+            rd.id = commande;
+            strcpy(rd.command, "Version");
+            strcpy(rd.name, data);
+            rd.type = keyValue;
+
+            return (rd);
+            break;
+            };
+
         default:{
 
             int keyValue = (int) data[longeur-1];
@@ -158,3 +181,18 @@ int MyStone::readIt(char *data, int len){
   if(mySerial) mySerial->readIt(data, len);
   return(0);
 };
+
+//Format: ST<{"cmd_code":"set_text","type":"label","widget":"label1","text":"HelloStone"}>ET
+void MyStone::setLabel(const char *labelName, const char *value){
+    char cmdFormat2[1024];
+    sprintf(cmdFormat2, "ST<{\"cmd_code\":\"set_text\",\"type\":\"label\",\"widget\":\"%s\",\"text\":\"%s\"}>ET", labelName, value);
+    if(mySerial) mySerial->writeIt(cmdFormat2);
+    };
+
+//Format: ST<{"cmd_code":"sys_version","type":"system"}>ET
+void MyStone::getVersion() {
+    char cmdFormat2[99];
+    strcpy(cmdFormat2, "ST<{\"cmd_code\":\"sys_version\",\"type\":\"system\"}>ET");
+	if(mySerial) mySerial->writeIt(cmdFormat2);
+};
+

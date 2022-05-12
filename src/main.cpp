@@ -31,6 +31,9 @@
 
 #include <Arduino.h>
 #include <ArduinoJson.h>
+//BOUTON START
+int BoutonStart; //évènement bouton
+int EtatSysteme = 0; //0 = arrêt, 1 = démarrage, 2 = pause ...
 
 // TEMPÉRATURE
 #include "MyTemp.h"
@@ -91,6 +94,21 @@ void readStoneData() {
       }
 
   if(rd.id<0) std::cout << "Data received ( id: : " << intToHexa(abs(rd.id)) << "  Command: " << rd.command << " Type: " << rd.type<< ")\n";
+
+  switch(rd.id){
+
+      case 0x1001: { //Bouton
+          std::cout << "GData : " << intToHexa(abs(rd.id)) << " " << rd.command << " " << rd.name << " " << rd.type << "\n";
+          std::string stoneName = rd.name;
+          std::cout << "Bouton : " <<  stoneName.c_str() << "\n";
+
+          //std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+          break;
+          }
+      }
+
+  if(rd.id<0) std::cout << "Data received ( id: : " << intToHexa(abs(rd.id)) << "  Command: " << rd.command << " Type: " << rd.type<< ")\n";
 }
 
 
@@ -114,10 +132,30 @@ void setup() {
   myTemp=new MyTemp();
     myTemp->init(DHTPIN, DHTTYPE);
     Serial.println("ça marche !");
+
+     //Partie des caractéristiques
+          myStone->setLabel("bois", "Érable");
+delay(100);
+          myStone->setLabel("type", "Dur");
+delay(100);
+          myStone->setLabel("origine", "US");
+delay(100);         
+          myStone->setLabel("tempsechage", "20 secondes");
+delay(100);        
+          myStone->setLabel("tempmin", "25 Celcius");              
+delay(100);
+  //Partie des informations
+          myStone->setLabel("bois2", "Érable");
+delay(100);
+          myStone->setLabel("tempmin2", "(min : 25 Celcius)");
+
+BoutonStart = 0;
+EtatSysteme = 0;
+
 }
 
 void loop() { 
-  
+  char buffer[10];
   readStoneData();
 
   int buttonActionT4 = myButtonT4->checkMyButton();
@@ -133,12 +171,17 @@ void loop() {
       if(buttonActionT5 > 2)  {  //Si appuyé plus de 0.2 secondes
           Serial.println("Button T5 pressed");
 
-          char cmdFormat2[99];
-          strcpy(cmdFormat2, "ST<{\"cmd_code\":\"sys_version\",\"type\":\"system\"}>ET");
-          std::cout << cmdFormat2 << "\n";
-          myStone->writeIt((char*)cmdFormat2);
+          //char cmdFormat2[99];
+         // strcpy(cmdFormat2, "ST<{\"cmd_code\":\"sys_version\",\"type\":\"system\"}>ET");
+         // std::cout << cmdFormat2 << "\n";
+         // myStone->writeIt((char*)cmdFormat2);
+        if(myStone) myStone->getVersion();
+
+          
           }
-  
+  sprintf(buffer, "%.1f °C", temperature);
+          myStone->setLabel("temperature", buffer);
+
   temperature = myTemp->getTemperature();
 
   delay(100);
