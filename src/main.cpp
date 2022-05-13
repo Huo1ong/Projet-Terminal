@@ -6,8 +6,12 @@
  * Cours Systèmes embarqués (c)2022
  *
     @file     main.cpp
-    @author   Alain Dubé
+
     @version  1.1 22/08/15
+    @author   Alain Dubé
+
+    @version  1.2 12/05/22
+    @author   Guillou Quentins
     @description
       Démonstration comment utiliser le PORT SERIE pour accèder aux fonctionnalités
       de l'écran STONE en utilisant la classe MyStone et MySerial
@@ -18,7 +22,8 @@
 
     Historique des versions
         Version    Date       Auteur       Description
-        1.1        22/08/15  Alain       Première version du logiciel
+        1.1        22/08/15   Alain        Première version du logiciel
+        1.2        12/05/22   Quentin      Seconde version du logiciel
 
     Fonctionnalités implantées
         Lecture des evénements envoyés par l'écran
@@ -34,12 +39,12 @@
 
 //BOUTON START
 int BoutonStart; //évènement bouton
-int EtatSysteme = 0; //0 = arrêt, 1 = démarrage, 2 = pause ...
+int EtatSysteme = 0; //Modes de fonctionnement : 0 = arrêt, 1 = démarrage, 2 = pause ...
 
 //COMPTE A REBOURS
 int counter = 0;
 
-// TEMPÉRATURE
+// class Mytemp
 #include "MyTemp.h"
 #define DHTPIN 21
 #define DHTTYPE DHT22
@@ -52,10 +57,12 @@ MyTemp *myTemp = NULL;
 
 #include <iostream>
 
+//class MyButton
 #include "MyButton.h"
 MyButton *myButtonT4 = new MyButton();
 MyButton *myButtonT5 = new MyButton();
 
+//class MyStone
 #include "MyStone.h"
 MyStone *myStone;
 
@@ -139,26 +146,25 @@ void setup() {
     myTemp->init(DHTPIN, DHTTYPE);
     Serial.println("ça marche !");
 
-     //Affichage des données
-     //Partie des caractéristiques
-          myStone->setLabel("bois", "Érable");
-delay(100);
-          myStone->setLabel("type", "Dur");
-delay(100);
-          myStone->setLabel("origine", "US");
-delay(100);         
-          myStone->setLabel("tempsechage", "20 secondes");
-delay(100);        
-          myStone->setLabel("tempmin", "25 Celcius");              
-delay(100);
-  //Partie des informations
-          myStone->setLabel("bois2", "Érable");
-delay(100);
-          myStone->setLabel("tempmin2", "(min : 25 Celcius)");
+      //Affichage des données
+      //Partie des caractéristiques
+        myStone->setLabel("bois", "Érable");
+          delay(100);
+        myStone->setLabel("type", "Dur");
+          delay(100);
+        myStone->setLabel("origine", "US");
+          delay(100);         
+        myStone->setLabel("tempsechage", "20 secondes");
+          delay(100);        
+        myStone->setLabel("tempmin", "25 Celcius");              
+          delay(100);
+      //Partie des informations
+        myStone->setLabel("bois2", "Érable");
+          delay(100);
+        myStone->setLabel("tempmin2", "(min : 25 Celcius)");
 
 BoutonStart = 0;
 EtatSysteme = 0;
-
 }
 
 void loop() { 
@@ -168,19 +174,19 @@ void loop() {
   //Boucle pour le compte à rebours
   if(BoutonStart == 1){
     Serial.print("fonctionnement");
-    if(temperature >= 25*0.90 && temperature <= 25*1.19){
-      while (counter < 20 && (temperature >= 25*0.90 && temperature <= 25*1.19)){
+    if(temperature >= 25*0.90 && temperature <= 25*1.19){ //si la température est supérieur ou inférieur à 25°C (à 10%)
+      while (counter < 20 && (temperature >= 25*0.90 && temperature <= 25*1.19)){ //tant que le compte à rebours est inférieur à 20 et que la température est bonne
         delay(500);
 
         Serial.print(20);
         counter++;
-        Serial.print(counter);
+        Serial.print(counter); //affichage du compte à rebours
         char tempsSecondes[20];
         sprintf(tempsSecondes, "%.0f s / %.1f s", counter, 20);
-        myStone->setLabel("temps", tempsSecondes);
+        myStone->setLabel("temps", tempsSecondes); //affichage des données sur le temps du timer
 
         sprintf(buffer, "%.1f °C", temperature);
-          myStone->setLabel("temperature", buffer);
+          myStone->setLabel("temperature", buffer); //affichage des données de la température
       }
     }
     BoutonStart = 0;

@@ -6,6 +6,7 @@
  */
 #include "MyTemp.h"
 
+//Initialise la température
 void MyTemp::init(int _inputPinUsed, int _typeSensorUsed){
     inputPinUsed = _inputPinUsed;
     typeSensorUsed = _typeSensorUsed;
@@ -14,6 +15,7 @@ void MyTemp::init(int _inputPinUsed, int _typeSensorUsed){
     dht->begin();
     }
 
+//Positionne l'unité de température utilisée
 bool MyTemp::setUniteUsed(int _UniteUsed){
    if((_UniteUsed>=0) && (_UniteUsed<=1)){
         UniteUsed = _UniteUsed;
@@ -22,10 +24,10 @@ bool MyTemp::setUniteUsed(int _UniteUsed){
     return(false);
     }
 
-//Return -999 if error
+//Récupère la tempérture du capteur thermique
 float MyTemp::getTemperature(){
     float t = dht->readTemperature();
-    // Check if any reads failed and exit early (to try again).
+    // Vérifiez si des lectures ont échoué et quittez plus tôt (pour réessayer).
     if (isnan(t)) {
         t = lastTemperatureRead;
         }

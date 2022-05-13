@@ -1,12 +1,12 @@
 /**
-    Class MyButton : Gestion de la température (senseur) STUB
-    @file MyButton.h 
-    @author Alain Dubé
-    @version 1.0 17/03/21  
+    Class MyTemp : Gestion de la température (senseur) STUB
+    @file MyTemp.h 
+    @author Guillou Quentin
+    @version 1.0 12/05/22
     
     Historique des versions   
                             Versions  Date      Auteur      Description
-                            1.0      17/03/21   Ald         Première version de la classe
+                            1.0       12/05/22  Quentin     Première version de la classe
                             
                             
     platform = espressif32

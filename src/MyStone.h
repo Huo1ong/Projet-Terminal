@@ -50,6 +50,7 @@ class MyStone {
         datasRead getValidsDatasIfExists(); 
         
         //Nouvelles méthodes ajoutées dans la version 1.2
+        void changePage(const char *pageName = "");
         void setLabel(const char *labelName, const char *value);
         void getVersion();
 };
